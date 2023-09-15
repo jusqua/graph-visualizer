@@ -1,13 +1,13 @@
 from __future__ import annotations
 from typing import Optional
 from copy import deepcopy
-from enum import Enum
+from enum import Enum, auto
 
 
 class Color(Enum):
-  white = 1,
-  grey = 2,
-  black = 3,
+  WHITE = auto(),
+  GREY = auto(),
+  BLACK = auto(),
 
 
 class Vertex:
@@ -15,7 +15,7 @@ class Vertex:
   def __init__(self, index: int, label: str):
     self.index: int = index
     self.label: str = label
-    self.color: Color = Color.white
+    self.color: Color = Color.WHITE
     self.degree: int = 0
     self.component: int = 0
     self.entry_depth: int = 0
@@ -43,8 +43,14 @@ class Vertex:
 
 class Edge:
 
-  def __init__(self, u: Vertex, v: Vertex, label: Optional[str] = None):
-    self.ends: tuple[Vertex, Vertex] = (u, v) if u.index < v.index else (v, u)
+  def __init__(self, u: Vertex, v: Vertex, label: Optional[str] = None, *, is_digraph: bool = False):
+    self.is_digraph = is_digraph
+
+    ends: tuple[Vertex, Vertex] = (u, v)
+    if not is_digraph and u.index < v.index:
+      ends = (v, u)
+
+    self.ends = ends
     self.label = label
 
   def contains(self, v: Vertex) -> bool:
@@ -61,9 +67,10 @@ class Edge:
       if len(__value) == 3 and __value[2] != None:
         return self.label == __value[2]
 
-      __value = __value[::-1] if __value[1] < __value[0] else __value
-      return self.ends[0].index == __value[0] and self.ends[
-        1].index == __value[1]
+      if not self.is_digraph:
+        __value = __value[::-1] if __value[1] < __value[0] else __value
+        
+      return self.ends[0].index == __value[0] and self.ends[1].index == __value[1]
 
     return False
 
@@ -80,9 +87,10 @@ class Edge:
 
 class Graph:
 
-  def __init__(self):
+  def __init__(self, *, is_digraph: bool = False):
     self.vertices: list[Vertex] = []
     self.edges: list[Edge] = []
+    self.is_digraph = is_digraph
 
   def append_vertex(self, label: str):
     index = len(self.vertices)
@@ -95,7 +103,7 @@ class Graph:
     vx.degree += 1
     vy.degree += 1
 
-    self.edges.append(Edge(vx, vy, label))
+    self.edges.append(Edge(vx, vy, label, is_digraph=self.is_digraph))
 
   def remove_edge(self, ix: int, iy: int, label: Optional[str] = None):
     primitive = (ix, iy, label)
@@ -266,8 +274,8 @@ class Graph:
     return
 
   @staticmethod
-  def create_empty_graph(n: int, graph_type: type[Graph]) -> Graph:
-    g = graph_type()
+  def create_empty_graph(n: int, *, graph_type: type[Graph], is_digraph: bool = False) -> Graph:
+    g = graph_type(is_digraph=is_digraph)
 
     for i in range(n):
       g.append_vertex(f"v{i + 1}")
@@ -275,7 +283,7 @@ class Graph:
     return g
 
   @staticmethod
-  def create_complete_graph(n: int, graph_type: type[Graph]) -> Graph:
+  def create_complete_graph(n: int, *, graph_type: type[Graph]) -> Graph:
     kn = Graph.create_empty_graph(n, graph_type)
 
     for i in range(n):
@@ -285,7 +293,7 @@ class Graph:
     return kn
 
   @staticmethod
-  def create_regular_graph(n: int, k: int, graph_type: type[Graph]) -> Graph:
+  def create_regular_graph(n: int, k: int, *, graph_type: type[Graph]) -> Graph:
     if (n * k) % 2:
       return None
 
@@ -313,6 +321,7 @@ class Graph:
 
 
 class AdjacencyMatrix(Graph):
+  """Deprecated, most of methods are not implemented"""
 
   def __init__(self):
     super().__init__()
@@ -326,7 +335,8 @@ class AdjacencyMatrix(Graph):
 
   def create_edge(self, ix: int, iy: int, label: Optional[str] = None):
     self.content[ix][iy] += 1
-    self.content[iy][ix] += 1
+    if not self.is_digraph:
+      self.content[iy][ix] += 1
     super().create_edge(ix, iy, label)
 
   def remove_edge(self, ix: int, iy: int, label: Optional[str] = None):
@@ -334,7 +344,8 @@ class AdjacencyMatrix(Graph):
       return
 
     self.content[ix][iy] -= 1
-    self.content[iy][ix] -= 1
+    if not self.is_digraph:
+      self.content[iy][ix] -= 1
     super().remove_edge(ix, iy, label)
 
   def is_neighbor(self, ix: int, iy: int) -> bool:
@@ -343,8 +354,8 @@ class AdjacencyMatrix(Graph):
 
 class AdjacencyList(Graph):
 
-  def __init__(self):
-    super().__init__()
+  def __init__(self, *, is_digraph: bool = False):
+    super().__init__(is_digraph=is_digraph)
     self.content: list[list[Vertex]] = []
 
   def append_vertex(self, label: str):
@@ -356,7 +367,8 @@ class AdjacencyList(Graph):
     vy = self.vertices[iy]
 
     self.content[ix].append(vy)
-    self.content[iy].append(vx)
+    if not self.is_digraph:
+      self.content[iy].append(vx)
     super().create_edge(ix, iy, label)
 
   def remove_edge(self, ix: int, iy: int, label: Optional[str] = None):
@@ -367,7 +379,8 @@ class AdjacencyList(Graph):
       return
 
     self.content[ix].remove(vy)
-    self.content[iy].remove(vx)
+    if not self.is_digraph:
+      self.content[iy].remove(vx)
     super().remove_edge(ix, iy, label)
 
   def is_neighbor(self, ix: int, iy: int) -> bool:
@@ -375,11 +388,11 @@ class AdjacencyList(Graph):
 
   def is_connected(self):
     for v in self.vertices:
-      v.color = Color.white
+      v.color = Color.WHITE
 
     self.__dfs(self.vertices[0], None)
     for v in self.vertices[1:]:
-      if v.color == Color.white:
+      if v.color == Color.WHITE:
         return False
 
     return True
@@ -426,22 +439,22 @@ class AdjacencyList(Graph):
         paths.append(path)
         return
 
-      source.color = Color.black
+      source.color = Color.BLACK
       neighbors = self.content[source.index][1:]
 
       for v in neighbors:
-        if v.color == Color.black:
+        if v.color == Color.BLACK:
           continue
 
         currentPath.append(v.index)
         dfs(v, destination)
         currentPath.pop()
 
-      source.color = Color.white
+      source.color = Color.WHITE
       return
 
     for v in self.vertices:
-      v.color = Color.white
+      v.color = Color.WHITE
 
     dfs(u, v)
 
@@ -449,13 +462,13 @@ class AdjacencyList(Graph):
 
   def find_cycle(self) -> Optional[Walk]:
     for v in self.vertices:
-      v.color = Color.white
+      v.color = Color.WHITE
 
     def dfs(u: Vertex, parent: Vertex, walk: list[int]) -> bool:
-      u.color = Color.black
+      u.color = Color.BLACK
       neighbors = self.content[u.index][1:]
       for v in neighbors:
-        if v.color == Color.white:
+        if v.color == Color.WHITE:
           walk.append(v.index)
           if dfs(v, u, walk):
             return True
@@ -468,7 +481,7 @@ class AdjacencyList(Graph):
       return False
 
     for v in self.vertices:
-      if v.color != Color.white:
+      if v.color != Color.WHITE:
         continue
 
       walk = [v.index]
@@ -489,11 +502,11 @@ class AdjacencyList(Graph):
       if source.index == destination.index:
         return True
 
-      source.color = Color.black
+      source.color = Color.BLACK
       neighbors = self.content[source.index][1:]
 
       for w in neighbors:
-        if w.color == Color.black:
+        if w.color == Color.BLACK:
           continue
 
         cycle.append(w.index)
@@ -504,7 +517,7 @@ class AdjacencyList(Graph):
       return False
 
     for w in self.vertices:
-      w.color = Color.white
+      w.color = Color.WHITE
 
     dfs(u, v)
     cycle.append(u.index)
@@ -518,7 +531,7 @@ class AdjacencyList(Graph):
         "Enter a graph G such that g(v) >= 2 for all v belonging to VG")
 
     for v in self.vertices:
-      v.color = Color.white
+      v.color = Color.WHITE
 
     source = self.vertices[0]
     path = [source.index, self.content[source.index][1].index]
@@ -527,11 +540,11 @@ class AdjacencyList(Graph):
       if parent != source and current == source:
         return True
 
-      current.color = Color.black
+      current.color = Color.BLACK
       neighbors = self.content[current.index][2:]
 
       for v in neighbors:
-        if v.color == Color.black:
+        if v.color == Color.BLACK:
           continue
 
         path.append(v.index)
@@ -539,12 +552,80 @@ class AdjacencyList(Graph):
           return True
         path.pop()
 
-      current.color = Color.white
+      current.color = Color.WHITE
       return False
 
     dfs(self.content[source.index][1], source)
 
     return Walk(self, path)
+
+  def low_link_values(self):
+    if not self.is_digraph:
+      raise Exception("Not a digraph")
+      
+    low = [0] * len(self.vertices)
+    disc = [0] * len(self.vertices)
+    state = [Color.WHITE] * len(self.vertices)
+    self.time = 0
+
+    def dfs(self, u, low, disc, state):
+      state[u.index] = Color.GREY
+      low[u.index] = self.time
+      disc[u.index] = self.time
+      self.time += 1
+
+      neighbors = self.content[u.index][1:]
+      for v in neighbors:
+        if state[v.index] == Color.WHITE:
+          dfs(self, v, low, disc, state)
+          low[u.index] = min(low[u.index], low[v.index])
+        else:
+          low[u.index] = min(low[u.index], disc[v.index])
+
+      state[u.index] = Color.BLACK
+
+    for v in self.vertices:
+      if (state[v.index] == Color.WHITE):
+        dfs(self, v, low, disc, state)
+
+    del self.time
+    return low
+
+  def strong_connected_components(self):
+    if not self.is_digraph:
+      raise Exception("Not a digraph")
+
+    length = len(self.vertices)
+    low = [0] * length
+    disc = [0] * length
+    state = [Color.WHITE] * length
+    stack = [False] * length
+    self.time = 0
+
+    def dfs(self, u, low, disc, state):
+      state[u.index] = Color.GREY
+      low[u.index] = self.time
+      disc[u.index] = self.time
+      stack[u.index] = True
+      self.time += 1
+
+      neighbors = self.content[u.index][1:]
+      for v in neighbors:
+        if state[v.index] == Color.WHITE:
+          dfs(self, v, low, disc, state)
+          low[u.index] = min(low[u.index], low[v.index])
+        elif stack[v.index]:
+          low[u.index] = min(low[u.index], disc[v.index])
+
+      state[u.index] = Color.BLACK
+      stack[u.index] = False
+
+    for v in self.vertices:
+      if (state[v.index] == Color.WHITE):
+        dfs(self, v, low, disc, state)
+
+    del self.time
+    return low
 
   def dfs(self):
     self.tree_edges = []
@@ -554,16 +635,16 @@ class AdjacencyList(Graph):
     self.pop_counter = 1
 
     for v in self.vertices:
-      v.color = Color.white
+      v.color = Color.WHITE
 
     self.components = 0
     for v in self.vertices:
-      if v.color == Color.white:
+      if v.color == Color.WHITE:
         self.__dfs(v, None)
         self.components += 1
 
   def __dfs(self, u: Vertex, parent: Vertex):
-    u.color = Color.grey
+    u.color = Color.GREY
     u.component = self.components
 
     u.entry_depth = self.push_counter
@@ -575,16 +656,16 @@ class AdjacencyList(Graph):
         continue
 
       edge = Edge(u, v)
-      if v.color == Color.white:
+      if v.color == Color.WHITE:
         self.tree_edges.append(edge)
         self.__dfs(v, u)
-      elif v.color == Color.grey:
+      elif v.color == Color.GREY:
         self.back_edges.append(edge)
 
     u.exit_depth = self.pop_counter
     self.pop_counter += 1
 
-    u.color = Color.black
+    u.color = Color.BLACK
 
   @staticmethod
   def create_empty_graph(n: int) -> Graph:
