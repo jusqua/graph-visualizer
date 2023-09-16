@@ -1,9 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
-from lib.constants import Color
+from lib.constants import Color, EdgeType
 from lib.walk import Walk
 from lib.graph import Graph
-from lib.edge import Edge
 
 
 if TYPE_CHECKING:
@@ -61,16 +60,22 @@ class AdjacencyList(Graph):
     for v in self.vertices:
       v.color = Color.WHITE
 
-    self.__dfs(self.vertices[0], None)
+    def dfs(self, u: Vertex, parent: Optional[Vertex] = None):
+      u.color = Color.GREY
+  
+      neighbors = self.content[u.index]
+      for v in neighbors:
+        if v.color == Color.WHITE and v != parent:
+          dfs(v, u)
+  
+      u.color = Color.BLACK
+      
+    dfs(self.vertices[0])
     for v in self.vertices:
       if v.color == Color.WHITE:
         return False
 
     return True
-
-  def get_components(self):
-    self.dfs()
-    return self.components
 
   def contains_circuit(self):
     components = self.get_components()
@@ -301,45 +306,51 @@ class AdjacencyList(Graph):
     del self.time
     return low
 
-  def dfs(self):
-    self.tree_edges = []
-    self.back_edges = []
-
-    self.push_counter = 1
-    self.pop_counter = 1
+  def depth_first_search(self):
+    values = {
+      "Tree Edges": [],
+      "Back Edges": [],
+      "Push Counter": 1,
+      "Pop Counter": 1,
+      "Components": 0
+    }
 
     for v in self.vertices:
       v.color = Color.WHITE
+    
+    def dfs(u: Vertex, parent: Optional[Vertex] = None):
+      u.color = Color.GREY
+      u.component = values["Components"]
+  
+      u.entry_depth = values["Push Counter"]
+      values["Push Counter"] += 1
+  
+      neighbors = self.content[u.index]
+      for v in neighbors:
+        if v == parent:
+          continue
 
-    self.components = 0
+        edge = (u, v)
+        edge = next(filter(lambda e: e == edge, self.edges))
+        if v.color == Color.WHITE:
+          edge.type = EdgeType.TREE_EDGE
+          values["Tree Edges"].append(edge)
+          dfs(v, u)
+        elif v.color == Color.GREY:
+          edge.type = EdgeType.BACK_EDGE
+          values["Back Edges"].append(edge)
+  
+      u.exit_depth = values["Pop Counter"]
+      values["Pop Counter"] += 1
+  
+      u.color = Color.BLACK
+      
     for v in self.vertices:
       if v.color == Color.WHITE:
-        self.__dfs(v, None)
-        self.components += 1
+        dfs(v)
+        values["Components"] += 1
 
-  def __dfs(self, u: Vertex, parent: Vertex):
-    u.color = Color.GREY
-    u.component = self.components
-
-    u.entry_depth = self.push_counter
-    self.push_counter += 1
-
-    neighbors = self.content[u.index]
-    for v in neighbors:
-      if v == parent:
-        continue
-
-      edge = Edge(u, v)
-      if v.color == Color.WHITE:
-        self.tree_edges.append(edge)
-        self.__dfs(v, u)
-      elif v.color == Color.GREY:
-        self.back_edges.append(edge)
-
-    u.exit_depth = self.pop_counter
-    self.pop_counter += 1
-
-    u.color = Color.BLACK
+    return values
 
   @staticmethod
   def create_empty_graph(n: int, *, directed: bool = False) -> Graph:

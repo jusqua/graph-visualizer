@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
+from lib.constants import EdgeType
 
 
 if TYPE_CHECKING:
@@ -10,6 +11,7 @@ class Edge:
 
   def __init__(self, u: Vertex, v: Vertex, label: Optional[str] = None, *, directed: bool = False):
     self.directed = directed
+    self.type = EdgeType.UNCLASSIFIED
 
     ends: tuple[Vertex, Vertex] = (u, v)
     if not directed and u.index < v.index:
