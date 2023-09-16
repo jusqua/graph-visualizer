@@ -231,31 +231,34 @@ class AdjacencyList(Graph):
   def low_link_values(self):
     if not self.directed:
       raise Exception("Not a digraph")
-      
-    low = [0] * len(self.vertices)
-    disc = [0] * len(self.vertices)
-    state = [Color.WHITE] * len(self.vertices)
+
+    length = len(self.vertices)
+    low = [0] * length
+    disc = [0] * length
     self.time = 0
 
-    def dfs(self, u, low, disc, state):
-      state[u.index] = Color.GREY
+    for v in self.vertices:
+      v.color = Color.WHITE
+
+    def dfs(self, u, low, disc):
+      u.color = Color.GREY
       low[u.index] = self.time
       disc[u.index] = self.time
       self.time += 1
 
       neighbors = self.content[u.index]
       for v in neighbors:
-        if state[v.index] == Color.WHITE:
-          dfs(self, v, low, disc, state)
+        if v.color == Color.WHITE:
+          dfs(self, v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
         else:
           low[u.index] = min(low[u.index], disc[v.index])
 
-      state[u.index] = Color.BLACK
+      u.color = Color.BLACK
 
     for v in self.vertices:
-      if (state[v.index] == Color.WHITE):
-        dfs(self, v, low, disc, state)
+      if (v.color == Color.WHITE):
+        dfs(self, v, low, disc)
 
     del self.time
     return low
@@ -267,12 +270,14 @@ class AdjacencyList(Graph):
     length = len(self.vertices)
     low = [0] * length
     disc = [0] * length
-    state = [Color.WHITE] * length
     stack = [False] * length
     self.time = 0
 
-    def dfs(self, u, low, disc, state):
-      state[u.index] = Color.GREY
+    for v in self.vertices:
+      v.color = Color.WHITE
+
+    def dfs(self, u, low, disc):
+      u.color = Color.GREY
       low[u.index] = self.time
       disc[u.index] = self.time
       stack[u.index] = True
@@ -280,18 +285,18 @@ class AdjacencyList(Graph):
 
       neighbors = self.content[u.index]
       for v in neighbors:
-        if state[v.index] == Color.WHITE:
-          dfs(self, v, low, disc, state)
+        if v.color == Color.WHITE:
+          dfs(self, v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
         elif stack[v.index]:
           low[u.index] = min(low[u.index], disc[v.index])
 
-      state[u.index] = Color.BLACK
+      u.color = Color.BLACK
       stack[u.index] = False
 
     for v in self.vertices:
-      if (state[v.index] == Color.WHITE):
-        dfs(self, v, low, disc, state)
+      if (v.color == Color.WHITE):
+        dfs(self, v, low, disc)
 
     del self.time
     return low
