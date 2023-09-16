@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 class AdjacencyList(Graph):
 
-  def __init__(self, *, is_digraph: bool = False):
-    super().__init__(is_digraph=is_digraph)
+  def __init__(self, *, directed: bool = False):
+    super().__init__(directed=directed)
     self.content: list[list[Vertex]] = []
 
   def append_vertex(self, label: str):
@@ -24,7 +24,7 @@ class AdjacencyList(Graph):
     vy = self.vertices[iy]
 
     self.content[ix].append(vy)
-    if not self.is_digraph:
+    if not self.directed:
       self.content[iy].append(vx)
     super().create_edge(ix, iy, label)
 
@@ -36,7 +36,7 @@ class AdjacencyList(Graph):
       return
 
     self.content[ix].remove(vy)
-    if not self.is_digraph:
+    if not self.directed:
       self.content[iy].remove(vx)
     super().remove_edge(ix, iy, label)
 
@@ -217,7 +217,7 @@ class AdjacencyList(Graph):
     return Walk(self, path)
 
   def low_link_values(self):
-    if not self.is_digraph:
+    if not self.directed:
       raise Exception("Not a digraph")
       
     low = [0] * len(self.vertices)
@@ -249,7 +249,7 @@ class AdjacencyList(Graph):
     return low
 
   def strong_connected_components(self):
-    if not self.is_digraph:
+    if not self.directed:
       raise Exception("Not a digraph")
 
     length = len(self.vertices)
@@ -325,8 +325,8 @@ class AdjacencyList(Graph):
     u.color = Color.BLACK
 
   @staticmethod
-  def create_empty_graph(n: int, *, is_digraph: bool = False) -> Graph:
-    return Graph.create_empty_graph(n, graph_type=AdjacencyList, is_digraph=is_digraph)
+  def create_empty_graph(n: int, *, directed: bool = False) -> Graph:
+    return Graph.create_empty_graph(n, graph_type=AdjacencyList, directed=directed)
 
   @staticmethod
   def create_complete_graph(n: int) -> Graph:

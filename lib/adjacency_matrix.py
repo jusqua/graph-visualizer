@@ -17,7 +17,7 @@ class AdjacencyMatrix(Graph):
 
   def create_edge(self, ix: int, iy: int, label: Optional[str] = None):
     self.content[ix][iy] += 1
-    if not self.is_digraph:
+    if not self.directed:
       self.content[iy][ix] += 1
     super().create_edge(ix, iy, label)
 
@@ -26,7 +26,7 @@ class AdjacencyMatrix(Graph):
       return
 
     self.content[ix][iy] -= 1
-    if not self.is_digraph:
+    if not self.directed:
       self.content[iy][ix] -= 1
     super().remove_edge(ix, iy, label)
 

@@ -8,11 +8,11 @@ if TYPE_CHECKING:
 
 class Edge:
 
-  def __init__(self, u: Vertex, v: Vertex, label: Optional[str] = None, *, is_digraph: bool = False):
-    self.is_digraph = is_digraph
+  def __init__(self, u: Vertex, v: Vertex, label: Optional[str] = None, *, directed: bool = False):
+    self.directed = directed
 
     ends: tuple[Vertex, Vertex] = (u, v)
-    if not is_digraph and u.index < v.index:
+    if not directed and u.index < v.index:
       ends = (v, u)
 
     self.ends = ends
@@ -32,7 +32,7 @@ class Edge:
       if len(__value) == 3 and __value[2] != None:
         return self.label == __value[2]
 
-      if not self.is_digraph:
+      if not self.directed:
         __value = __value[::-1] if __value[1] < __value[0] else __value
         
       return self.ends[0].index == __value[0] and self.ends[1].index == __value[1]

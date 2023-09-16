@@ -7,10 +7,10 @@ from lib.vertex import Vertex
 
 class Graph:
 
-  def __init__(self, *, is_digraph: bool = False):
+  def __init__(self, *, directed: bool = False):
     self.vertices: list[Vertex] = []
     self.edges: list[Edge] = []
-    self.is_digraph = is_digraph
+    self.directed = directed
 
   def append_vertex(self, label: str):
     index = len(self.vertices)
@@ -23,7 +23,7 @@ class Graph:
     vx.degree += 1
     vy.degree += 1
 
-    self.edges.append(Edge(vx, vy, label, is_digraph=self.is_digraph))
+    self.edges.append(Edge(vx, vy, label, directed=self.directed))
 
   def remove_edge(self, ix: int, iy: int, label: Optional[str] = None):
     primitive = (ix, iy, label)
@@ -193,8 +193,8 @@ class Graph:
     return
 
   @staticmethod
-  def create_empty_graph(n: int, *, graph_type: type[Graph], is_digraph: bool = False) -> Graph:
-    g = graph_type(is_digraph=is_digraph)
+  def create_empty_graph(n: int, *, graph_type: type[Graph], directed: bool = False) -> Graph:
+    g = graph_type(directed=directed)
 
     for i in range(n):
       g.append_vertex(f"v{i + 1}")
