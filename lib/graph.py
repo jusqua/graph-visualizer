@@ -16,6 +16,22 @@ class Graph:
     index = len(self.vertices)
     self.vertices.append(Vertex(index, label))
 
+  def remove_vertex(self, iv: int):
+    v = self.vertices[iv]
+
+    to_remove = []
+    for e in self.edges:
+      if e.contains(v):
+        to_remove.append(e)
+
+    for e in to_remove:
+      self.edges.remove(e)
+    
+    for u in self.vertices[iv:]:
+      u.index -= 1
+    
+    self.vertices.pop(iv)
+
   def create_edge(self, ix: int, iy: int, label: Optional[str] = None):
     vx = self.vertices[ix]
     vy = self.vertices[iy]

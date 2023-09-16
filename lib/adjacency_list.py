@@ -9,6 +9,7 @@ from lib.edge import Edge
 if TYPE_CHECKING:
   from lib.vertex import Vertex
 
+
 class AdjacencyList(Graph):
 
   def __init__(self, *, directed: bool = False):
@@ -18,6 +19,19 @@ class AdjacencyList(Graph):
   def append_vertex(self, label: str):
     super().append_vertex(label)
     self.content.append([])
+
+  def remove_vertex(self, iv: int):
+    v = self.vertices[iv]
+    self.content.pop(iv)
+    
+    for list in self.content:
+      while True:
+        try:
+          list.remove(v)
+        except ValueError:
+          break
+          
+    super().remove_vertex(iv)
 
   def create_edge(self, ix: int, iy: int, label: Optional[str] = None):
     vx = self.vertices[ix]
