@@ -17,7 +17,7 @@ class AdjacencyList(Graph):
 
   def append_vertex(self, label: str):
     super().append_vertex(label)
-    self.content.append([self.vertices[-1]])
+    self.content.append([])
 
   def create_edge(self, ix: int, iy: int, label: Optional[str] = None):
     vx = self.vertices[ix]
@@ -41,14 +41,14 @@ class AdjacencyList(Graph):
     super().remove_edge(ix, iy, label)
 
   def is_neighbor(self, ix: int, iy: int) -> bool:
-    return self.vertices[iy] in self.content[ix][1:]
+    return self.vertices[iy] in self.content[ix]
 
   def is_connected(self):
     for v in self.vertices:
       v.color = Color.WHITE
 
     self.__dfs(self.vertices[0], None)
-    for v in self.vertices[1:]:
+    for v in self.vertices:
       if v.color == Color.WHITE:
         return False
 
@@ -97,7 +97,7 @@ class AdjacencyList(Graph):
         return
 
       source.color = Color.BLACK
-      neighbors = self.content[source.index][1:]
+      neighbors = self.content[source.index]
 
       for v in neighbors:
         if v.color == Color.BLACK:
@@ -123,7 +123,7 @@ class AdjacencyList(Graph):
 
     def dfs(u: Vertex, parent: Vertex, walk: list[int]) -> bool:
       u.color = Color.BLACK
-      neighbors = self.content[u.index][1:]
+      neighbors = self.content[u.index]
       for v in neighbors:
         if v.color == Color.WHITE:
           walk.append(v.index)
@@ -149,8 +149,7 @@ class AdjacencyList(Graph):
 
     return None
 
-  def get_cycle_from_circuit(self, circuit: Walk,
-                             edge: tuple[int, int, Optional[str]]) -> Walk:
+  def get_cycle_from_circuit(self, circuit: Walk, edge: tuple[int, int, Optional[str]]) -> Walk:
     u = self.vertices[edge[0]]
     v = self.vertices[edge[1]]
     cycle = [u.index]
@@ -160,7 +159,7 @@ class AdjacencyList(Graph):
         return True
 
       source.color = Color.BLACK
-      neighbors = self.content[source.index][1:]
+      neighbors = self.content[source.index]
 
       for w in neighbors:
         if w.color == Color.BLACK:
@@ -184,8 +183,7 @@ class AdjacencyList(Graph):
 
   def restricted_find_cycle(self) -> Walk:
     if any(v.degree < 2 for v in self.vertices):
-      raise Exception(
-        "Enter a graph G such that g(v) >= 2 for all v belonging to VG")
+      raise Exception("Enter a graph G such that g(v) >= 2 for all v belonging to VG")
 
     for v in self.vertices:
       v.color = Color.WHITE
@@ -198,7 +196,7 @@ class AdjacencyList(Graph):
         return True
 
       current.color = Color.BLACK
-      neighbors = self.content[current.index][2:]
+      neighbors = self.content[current.index][1:]
 
       for v in neighbors:
         if v.color == Color.BLACK:
@@ -231,7 +229,7 @@ class AdjacencyList(Graph):
       disc[u.index] = self.time
       self.time += 1
 
-      neighbors = self.content[u.index][1:]
+      neighbors = self.content[u.index]
       for v in neighbors:
         if state[v.index] == Color.WHITE:
           dfs(self, v, low, disc, state)
@@ -266,7 +264,7 @@ class AdjacencyList(Graph):
       stack[u.index] = True
       self.time += 1
 
-      neighbors = self.content[u.index][1:]
+      neighbors = self.content[u.index]
       for v in neighbors:
         if state[v.index] == Color.WHITE:
           dfs(self, v, low, disc, state)
@@ -307,7 +305,7 @@ class AdjacencyList(Graph):
     u.entry_depth = self.push_counter
     self.push_counter += 1
 
-    neighbors = self.content[u.index][1:]
+    neighbors = self.content[u.index]
     for v in neighbors:
       if v == parent:
         continue
