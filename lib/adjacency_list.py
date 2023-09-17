@@ -317,6 +317,29 @@ class AdjacencyList(Graph):
     
     return components
 
+  def topological_sort(self):
+    stack: list[Vertex] = []
+    
+    for v in self.vertices:
+      v.color = Color.WHITE
+
+    def dfs(u: Vertex, stack: list[Vertex]):
+      u.color = Color.GREY
+  
+      neighbors = self.content[u.index]
+      for v in neighbors:
+        if v.color == Color.WHITE:
+          dfs(v, stack)
+
+      stack.append(u)
+      u.color = Color.BLACK
+
+    for v in self.vertices:
+      if v.color is Color.WHITE:
+        dfs(v, stack)
+
+    return stack
+
   def depth_first_search(self):
     values = {
       "Tree Edges": [],
