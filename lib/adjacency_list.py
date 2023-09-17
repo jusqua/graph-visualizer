@@ -57,10 +57,11 @@ class AdjacencyList(Graph):
     return self.vertices[iy] in self.content[ix]
 
   def is_connected(self):
+    """Only works for undirected graphs"""
     for v in self.vertices:
       v.color = Color.WHITE
 
-    def dfs(self, u: Vertex, parent: Optional[Vertex] = None):
+    def dfs(u: Vertex, parent: Optional[Vertex] = None):
       u.color = Color.GREY
   
       neighbors = self.content[u.index]
@@ -245,7 +246,7 @@ class AdjacencyList(Graph):
     for v in self.vertices:
       v.color = Color.WHITE
 
-    def dfs(self, u, low, disc):
+    def dfs(u, low, disc):
       u.color = Color.GREY
       low[u.index] = self.time
       disc[u.index] = self.time
@@ -254,7 +255,7 @@ class AdjacencyList(Graph):
       neighbors = self.content[u.index]
       for v in neighbors:
         if v.color == Color.WHITE:
-          dfs(self, v, low, disc)
+          dfs(v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
         else:
           low[u.index] = min(low[u.index], disc[v.index])
@@ -263,7 +264,7 @@ class AdjacencyList(Graph):
 
     for v in self.vertices:
       if (v.color == Color.WHITE):
-        dfs(self, v, low, disc)
+        dfs(v, low, disc)
 
     del self.time
     return low
@@ -281,7 +282,7 @@ class AdjacencyList(Graph):
     for v in self.vertices:
       v.color = Color.WHITE
 
-    def dfs(self, u, low, disc):
+    def dfs(u, low, disc):
       u.color = Color.GREY
       low[u.index] = self.time
       disc[u.index] = self.time
@@ -291,7 +292,7 @@ class AdjacencyList(Graph):
       neighbors = self.content[u.index]
       for v in neighbors:
         if v.color == Color.WHITE:
-          dfs(self, v, low, disc)
+          dfs(v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
         elif stack[v.index]:
           low[u.index] = min(low[u.index], disc[v.index])
@@ -301,7 +302,7 @@ class AdjacencyList(Graph):
 
     for v in self.vertices:
       if (v.color == Color.WHITE):
-        dfs(self, v, low, disc)
+        dfs(v, low, disc)
 
     del self.time
 
