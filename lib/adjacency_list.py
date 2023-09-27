@@ -269,7 +269,7 @@ class AdjacencyList(Graph):
     del self.time
     return low
 
-  def strong_connected_components(self):
+  def strongly_connected_components(self):
     if not self.directed:
       raise Exception("Not a digraph")
 
