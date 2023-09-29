@@ -3,6 +3,7 @@ from typing import Optional
 from copy import deepcopy
 from lib.edge import Edge
 from lib.vertex import Vertex
+import re
 
 
 class Graph:
@@ -12,9 +13,15 @@ class Graph:
     self.edges: list[Edge] = []
     self.directed = directed
 
-  def append_vertex(self, label: str):
+  def append_vertex(self, label: str) -> bool:
+    for v in self.vertices:
+      if v.label == label:
+        return v.index
+        
     index = len(self.vertices)
     self.vertices.append(Vertex(index, label))
+    
+    return index
 
   def remove_vertex(self, iv: int):
     v = self.vertices[iv]
@@ -238,6 +245,32 @@ class Graph:
         g.create_edge(i, (i + 1) % n)
 
     return g
+
+  @staticmethod
+  def is_2satisfiable(elements: list[tuple[int, int]], *, graph_type: type[Graph]) -> bool:
+    """This function check if given elements in conjuntive normal form are 2-satisfiable"""
+
+    g = graph_type(directed=True)
+    
+    for v, u in elements:
+      for x, y in [(-v, u), (-u, v)]:
+        xi = g.append_vertex(f"{'~' if x < 0 else ''}x{abs(x)}")
+        yi = g.append_vertex(f"{'~' if y < 0 else ''}x{abs(y)}")
+
+        g.create_edge(xi, yi)
+
+    components = g.strongly_connected_components()
+
+    for comp in components:
+      elem = set()
+      
+      for v in comp:
+        elem.add(int(re.search(r'\d+', v.label).group()))
+
+      if len(elem) != len(comp):
+        return False
+        
+    return True
 
   def __str__(self):
     edges_list = [str(e) for e in self.edges]

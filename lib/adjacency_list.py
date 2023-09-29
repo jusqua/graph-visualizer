@@ -16,8 +16,11 @@ class AdjacencyList(Graph):
     self.content: list[list[Vertex]] = []
 
   def append_vertex(self, label: str):
-    super().append_vertex(label)
-    self.content.append([])
+    index = super().append_vertex(label)
+    if index == self.vertices[-1].index:
+      self.content.append([])
+      
+    return index
 
   def remove_vertex(self, iv: int):
     v = self.vertices[iv]
@@ -398,3 +401,7 @@ class AdjacencyList(Graph):
   @staticmethod
   def create_regular_graph(n: int, k: int) -> Graph:
     return Graph.create_regular_graph(n, k, graph_type=AdjacencyList)
+    
+  @staticmethod
+  def is_2satisfiable(elements: list[tuple[int, int]]) -> bool:
+    return Graph.is_2satisfiable(elements, graph_type=AdjacencyList)
