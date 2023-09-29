@@ -9,8 +9,8 @@ class AdjacencyMatrix(Graph):
     super().__init__()
     self.content: list[list[int]] = []
 
-  def append_vertex(self, label: str):
-    super().append_vertex(label)
+  def create_vertex(self, label: str):
+    super().create_vertex(label)
     for row in self.content:
       row.append(0)
     self.content.append([0] * len(self.vertices))

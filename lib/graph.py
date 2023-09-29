@@ -13,7 +13,7 @@ class Graph:
     self.edges: list[Edge] = []
     self.directed = directed
 
-  def append_vertex(self, label: str) -> bool:
+  def create_vertex(self, label: str) -> bool:
     for v in self.vertices:
       if v.label == label:
         return v.index
@@ -108,7 +108,7 @@ class Graph:
 
     for v in self.vertices:
       if v not in vertices:
-        g.append_vertex(v.label)
+        g.create_vertex(v.label)
         equivalent_vertices.append((v.index, g.vertices[-1].index))
 
     for e in self.edges:
@@ -144,7 +144,7 @@ class Graph:
 
     for v in self.vertices:
       if v in vertices:
-        g.append_vertex(v.label)
+        g.create_vertex(v.label)
         equivalent_vertices.append((v.index, g.vertices[-1].index))
 
     for e in self.edges:
@@ -173,7 +173,7 @@ class Graph:
 
       for v in e.ends:
         if not any(old == v for old, _ in equivalent_vertices):
-          g.append_vertex(v.label)
+          g.create_vertex(v.label)
           equivalent_vertices.append((v.index, g.vertices[-1].index))
 
       edge = []
@@ -196,7 +196,7 @@ class Graph:
 
     for v in self.vertices:
       if v in vertices:
-        g.append_vertex(v.label)
+        g.create_vertex(v.label)
         equivalent_vertices.append((v.index, g.vertices[-1].index))
 
     for e in edges:
@@ -220,7 +220,7 @@ class Graph:
     g = graph_type(directed=directed)
 
     for i in range(n):
-      g.append_vertex(f"v{i + 1}")
+      g.create_vertex(f"v{i + 1}")
 
     return g
 
@@ -254,8 +254,8 @@ class Graph:
     
     for v, u in elements:
       for x, y in [(-v, u), (-u, v)]:
-        xi = g.append_vertex(f"{'~' if x < 0 else ''}x{abs(x)}")
-        yi = g.append_vertex(f"{'~' if y < 0 else ''}x{abs(y)}")
+        xi = g.create_vertex(f"{'~' if x < 0 else ''}x{abs(x)}")
+        yi = g.create_vertex(f"{'~' if y < 0 else ''}x{abs(y)}")
 
         g.create_edge(xi, yi)
 

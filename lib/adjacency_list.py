@@ -15,8 +15,8 @@ class AdjacencyList(Graph):
     super().__init__(directed=directed)
     self.content: list[list[Vertex]] = []
 
-  def append_vertex(self, label: str):
-    index = super().append_vertex(label)
+  def create_vertex(self, label: str):
+    index = super().create_vertex(label)
     if index == self.vertices[-1].index:
       self.content.append([])
       
