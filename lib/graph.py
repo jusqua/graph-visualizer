@@ -248,7 +248,7 @@ class Graph:
 
   @staticmethod
   def is_2satisfiable(elements: list[tuple[int, int]], *, graph_type: type[Graph]) -> bool:
-    """This function check if given elements in conjuntive normal form are 2-satisfiable"""
+    """This function checks if a CNF boolean formula is 2-satisfiable"""
 
     g = graph_type(directed=True)
     
