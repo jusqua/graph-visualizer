@@ -263,7 +263,7 @@ class AdjacencyList(Graph):
         if disc[v.index] == -1:
           dfs(v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
-        elif stack[v.index]:
+        elif onStack[v.index]:
           low[u.index] = min(low[u.index], disc[v.index])
 
       if low[u.index] == disc[u.index]:
