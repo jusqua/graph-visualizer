@@ -277,48 +277,44 @@ class AdjacencyList(Graph):
       raise Exception("Not a digraph")
 
     length = len(self.vertices)
-    low = [0] * length
-    disc = [0] * length
-    stack = [False] * length
-    self.time = 0
+    low = [-1] * length
+    disc = [-1] * length
+    onStack = [False] * length
+    stack: list[Vertex] = []
+    time = 0
 
-    for v in self.vertices:
-      v.color = Color.WHITE
+    components: list[list[Vertex]] = []
 
     def dfs(u, low, disc):
-      u.color = Color.GREY
-      low[u.index] = self.time
-      disc[u.index] = self.time
-      stack[u.index] = True
-      self.time += 1
+      nonlocal time
+      disc[u.index] = time
+      low[u.index] = time
+      onStack[u.index] = True
+      stack.append(u)
+      time += 1
 
       neighbors = self.content[u.index]
       for v in neighbors:
-        if v.color == Color.WHITE:
+        if disc[v.index] == -1:
           dfs(v, low, disc)
           low[u.index] = min(low[u.index], low[v.index])
         elif stack[v.index]:
           low[u.index] = min(low[u.index], disc[v.index])
 
-      u.color = Color.BLACK
-      stack[u.index] = False
+      if low[u.index] == disc[u.index]:
+        component: list[Vertex] = []
+        while True:
+          w = stack.pop()
+          component.append(w) 
+          onStack[w.index] = False
+          if w.index == u.index:
+            break
+        components.append(component) 
 
     for v in self.vertices:
-      if (v.color == Color.WHITE):
+      if (disc[v.index] == -1):
         dfs(v, low, disc)
 
-    del self.time
-
-    arranged_low = sorted(zip(low, range(length)))
-    counter = 0
-    components = [[self.vertices[arranged_low[0][1]]]]
-    for i in range(1, length):
-      if arranged_low[i - 1][0] != arranged_low[i][0]:
-        counter += 1
-        components.append([])
-        
-      components[counter].append(self.vertices[arranged_low[i][1]])
-    
     return components
 
   def topological_sort(self):
