@@ -237,41 +237,6 @@ class AdjacencyList(Graph):
 
     return Walk(self, path)
 
-  def low_link_values(self):
-    if not self.directed:
-      raise Exception("Not a digraph")
-
-    length = len(self.vertices)
-    low = [0] * length
-    disc = [0] * length
-    self.time = 0
-
-    for v in self.vertices:
-      v.color = Color.WHITE
-
-    def dfs(u, low, disc):
-      u.color = Color.GREY
-      low[u.index] = self.time
-      disc[u.index] = self.time
-      self.time += 1
-
-      neighbors = self.content[u.index]
-      for v in neighbors:
-        if v.color == Color.WHITE:
-          dfs(v, low, disc)
-          low[u.index] = min(low[u.index], low[v.index])
-        else:
-          low[u.index] = min(low[u.index], disc[v.index])
-
-      u.color = Color.BLACK
-
-    for v in self.vertices:
-      if (v.color == Color.WHITE):
-        dfs(v, low, disc)
-
-    del self.time
-    return low
-
   def strongly_connected_components(self):
     if not self.directed:
       raise Exception("Not a digraph")
