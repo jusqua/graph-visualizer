@@ -352,6 +352,29 @@ class AdjacencyList(Graph):
     return values
 
   @staticmethod
+  def is_2satisfiable(elements: list[tuple[int, int]]) -> bool:
+    g = AdjacencyList(directed=True)
+    
+    for v, u in elements:
+      for x, y in [(-v, u), (-u, v)]:
+        xi = g.create_vertex(str(x))
+        yi = g.create_vertex(str(y))
+
+        g.create_edge(xi, yi)
+
+    components = g.strongly_connected_components()
+
+    for comp in components:
+      elem = set()
+      for v in comp:
+        elem.add(abs(int(v.label)))
+        
+      if len(elem) != len(comp):
+        return False
+        
+    return True
+    
+  @staticmethod
   def create_empty_graph(n: int, *, directed: bool = False) -> Graph:
     return Graph.create_empty_graph(n, graph_type=AdjacencyList, directed=directed)
 
@@ -362,7 +385,3 @@ class AdjacencyList(Graph):
   @staticmethod
   def create_regular_graph(n: int, k: int) -> Graph:
     return Graph.create_regular_graph(n, k, graph_type=AdjacencyList)
-    
-  @staticmethod
-  def is_2satisfiable(elements: list[tuple[int, int]]) -> bool:
-    return Graph.is_2satisfiable(elements, graph_type=AdjacencyList)

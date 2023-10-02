@@ -246,32 +246,6 @@ class Graph:
 
     return g
 
-  @staticmethod
-  def is_2satisfiable(elements: list[tuple[int, int]], *, graph_type: type[Graph]) -> bool:
-    """This function checks if a CNF boolean formula is 2-satisfiable"""
-
-    g = graph_type(directed=True)
-    
-    for v, u in elements:
-      for x, y in [(-v, u), (-u, v)]:
-        xi = g.create_vertex(f"{'~' if x < 0 else ''}x{abs(x)}")
-        yi = g.create_vertex(f"{'~' if y < 0 else ''}x{abs(y)}")
-
-        g.create_edge(xi, yi)
-
-    components = g.strongly_connected_components()
-
-    for comp in components:
-      elem = set()
-      
-      for v in comp:
-        elem.add(int(re.search(r'\d+', v.label).group()))
-
-      if len(elem) != len(comp):
-        return False
-        
-    return True
-
   def __str__(self):
     edges_list = [str(e) for e in self.edges]
     vertices = [tuple(v) for v in self.vertices]
