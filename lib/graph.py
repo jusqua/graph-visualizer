@@ -3,7 +3,6 @@ from typing import Optional
 from copy import deepcopy
 from lib.edge import Edge
 from lib.vertex import Vertex
-import re
 
 
 class Graph:

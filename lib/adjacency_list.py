@@ -351,8 +351,6 @@ class AdjacencyList(Graph):
 
     return values
 
-  
-
   @staticmethod
   def is_2satisfiable(elements: list[tuple[int, int]]) -> Optional[dict[int, bool]]:
     g = AdjacencyList(directed=True)
