@@ -3,9 +3,9 @@ from lib.constants import Color
 
 class Vertex:
 
-  def __init__(self, index: int, label: str):
+  def __init__(self, index: int, label: str | int):
     self.index: int = index
-    self.label: str = label
+    self.label: str | int = label
     self.color: Color = Color.WHITE
     self.degree: int = 0
     self.component: int = 0
@@ -26,7 +26,7 @@ class Vertex:
     if isinstance(__value, int):
       return self.index == __value
 
-    if isinstance(__value, str):
+    if isinstance(__value, str) or isinstance(__value, int):
       return self.label == __value
 
     return False
