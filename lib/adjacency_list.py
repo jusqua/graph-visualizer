@@ -351,28 +351,38 @@ class AdjacencyList(Graph):
 
     return values
 
-  @staticmethod
-  def is_2satisfiable(elements: list[tuple[int, int]]) -> bool:
-    g = AdjacencyList(directed=True)
-    
-    for v, u in elements:
-      for x, y in [(-v, u), (-u, v)]:
-        xi = g.create_vertex(str(x))
-        yi = g.create_vertex(str(y))
+  
 
+  @staticmethod
+  def is_2satisfiable(elements: list[tuple[int, int]]) -> Optional[dict[int, bool]]:
+    g = AdjacencyList(directed=True)
+
+    for u, v in elements:
+      for e in [abs(u), -abs(u), abs(v), -abs(v)]:
+        g.create_vertex(e)
+      
+      for x, y in [(-u, v), (-v, u)]:
+        xi = g.create_vertex(x)
+        yi = g.create_vertex(y)
         g.create_edge(xi, yi)
 
+    comp_order: list[int] = [-1] * len(g.vertices)
+    assignment: dict[int, bool] = {}
+    
     components = g.strongly_connected_components()
 
-    for comp in components:
-      elem = set()
+    for i, comp in enumerate(components[::-1]):
       for v in comp:
-        elem.add(abs(int(v.label)))
-        
-      if len(elem) != len(comp):
-        return False
-        
-    return True
+        comp_order[v.index] = i
+
+    for i in range(0, len(comp_order), 2):
+      if comp_order[i] == comp_order[i + 1]:
+        return None
+
+      u = g.vertices[i]
+      assignment[u.label] = comp_order[i] > comp_order[i + 1]
+
+    return assignment
     
   @staticmethod
   def create_empty_graph(n: int, *, directed: bool = False) -> Graph:
